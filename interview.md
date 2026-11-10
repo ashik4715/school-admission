@@ -155,10 +155,6 @@ Where the AI was wrong, and how I caught it (six real bugs, all documented):
 6. **Build-config details.** `allowedHosts` is a Vite 6 option (project pins Vite 5),
    missing `process` types, unused `useRef` import. *Caught by* `tsc -b`.
 
-**The honest answer to "did you understand what the AI wrote?":** yes — because I reviewed
-every file, ran everything locally, and the AI's mistakes are the evidence that I was in the
-loop. A pure copy-paste would not have six documented bugs with root causes and fixes.
-
 ---
 
 ## 6. Sample interview questions (5–10) with answers
@@ -241,20 +237,10 @@ confirms → `confirmedSeats == 1`, and mixed read/apply/expiry traffic keeping
 
 ## 7. Runnability & requirements match
 
-**Is it runnable?** Yes, by design: `docker compose up --build` starts PostgreSQL + backend +
+by design: `docker compose up --build` starts PostgreSQL + backend +
 frontend; nothing else has to be installed (T7). A no-Docker path (`run-local.sh`/`.ps1`) exists
 for development. I could not execute it on this review machine (no .NET/Node/Docker in PATH),
 so Docker end-to-end remains the one manual verification step — flagged honestly.
-
-**Does it match the requirements fully?** Cross-checked every ID in `01-SPEC-reconstructed.md`
-against the code via `03-REQUIREMENT-MAP.md`. Result: all of S1–S10, T1–T8, U1–U8, AE1–AE5,
-A1–A8, B1–B7, X1, F1–F5, BN1, D1–D6 are implemented and (where testable) verified; only
-T6/T7 (Docker run) and B7 restart (Docker) remain manual ⚠️ steps. I added the previously
-missing B8 (invalid input → 4xx, never 500) to the spec and map; the code already complies.
-
-**One gap I would still close before submission:** restore/keep `ASSUMPTIONS.md` in the repo
-(D4) — done — and make sure the confidential hand-off files (00–04, the PDF) never reach the
-public repo — handled via `.gitignore`.
 
 ---
 
