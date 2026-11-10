@@ -61,4 +61,6 @@ edge case returns), reviewed every file, ran everything locally and fixed what d
   refresh.
 * The concurrency behaviour with an independent load (120 simultaneous requests for 5 seats →
   exactly 5 × `201`, 115 × `409`, counts consistent).
-* `docker compose up --build` from a clean state. *(Add the date you verified this.)*
+* `docker compose up --build` from a clean state — **open item**, Docker was not available in the
+  environment where the code was written, so this is the one step to run once on a machine with
+  Docker (add the date here when done).
