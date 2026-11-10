@@ -1,0 +1,58 @@
+# Runs the whole system with a single command:  docker compose up --build
+#
+#   UI           http://localhost:3000
+#   API          http://localhost:8080
+#   PostgreSQL   localhost:5432  (user/password/db: school/school/school_admission)
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: school_admission
+      POSTGRES_USER: school
+      POSTGRES_PASSWORD: school
+    # A few extra connections so several backend processes (and the API tests) can connect
+    # at the same time without hitting the server's connection limit.
+    command: ["postgres", "-c", "max_connections=200"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school -d school_admission"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=school_admission;Username=school;Password=school"
+      # How long a seat stays on hold while the student pays (seconds).
+      HOLD_DURATION_SECONDS: "${HOLD_DURATION_SECONDS:-600}"
+      # Cap of the connection pool per backend process.
+      DB_MAX_POOL_SIZE: "${DB_MAX_POOL_SIZE:-20}"
+      ASPNETCORE_URLS: "http://0.0.0.0:8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Empty = call the API on the same origin; nginx proxies it to the backend service.
+        # Set it (e.g. http://localhost:8080) to talk to a backend somewhere else instead.
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-}"
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:

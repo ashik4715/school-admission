@@ -1,0 +1,23 @@
+# ---- build ----------------------------------------------------------------
+FROM node:20-alpine AS build
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+# Where the browser should send API calls. Empty (the default) means "same origin":
+# nginx below proxies /classes, /holds, /me and /health to the backend container.
+ARG VITE_API_BASE_URL=""
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
+RUN npm run build
+
+# ---- runtime --------------------------------------------------------------
+FROM nginx:1.27-alpine AS runtime
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
