@@ -21,7 +21,7 @@ docker compose up --build
 | What | URL |
 |------|-----|
 | **UI (open this one)** | <http://localhost:3000> |
-| API | <http://localhost:8080> |
+| API | <http://localhost:8080/> |
 | PostgreSQL | `localhost:5432` (`school` / `school`, database `school_admission`) |
 
 Nothing else has to be installed — no .NET SDK, no Node, no local PostgreSQL.
@@ -101,7 +101,7 @@ npm test
 ---
 
 ## 3. API
-
+Swagger URL `http://localhost:8080/swagger`, JSON only and
 Base URL `http://localhost:8080`, JSON only, student identity in the `X-Student-Id` header
 (17 digits). Responses may contain extra fields, the required ones are always present.
 
@@ -224,4 +224,7 @@ ConnectionStrings__Default="Host=localhost;Port=5432;Database=school_admission;U
 cd frontend
 npm install && npm run dev        # http://localhost:5173
 ```
+
+# Backend API with Swagger (proxies /classes, /holds, /me, /health to http://localhost:8080/swagger)
+
 
