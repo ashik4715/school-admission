@@ -21,3 +21,6 @@ coverage/
 # OS / editor
 .DS_Store
 .idea/
+
+# TypeScript incremental build info
+*.tsbuildinfo
