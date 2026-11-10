@@ -13,6 +13,19 @@ builder.Services.AddSingleton<SchemaInitializer>();
 builder.Services.AddScoped<AdmissionService>();
 builder.Services.AddHostedService<HoldExpiryWorker>();
 
+// OpenAPI / Swagger so the API can be explored and tested from the browser
+// without Postman (http://localhost:8080/swagger).
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "School Admission System API",
+        Version = "v1",
+        Description = "First-come-first-served school admission. Hold a seat, then confirm by paying before the hold window runs out."
+    });
+});
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
@@ -27,6 +40,17 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
+// Swagger UI at /swagger (and the raw spec at /swagger/v1/swagger.json).
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "School Admission System API v1");
+    options.RoutePrefix = "swagger";
+});
+
+// Friendly landing page instead of a bare 404: send browsers to Swagger.
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 // Fail fast with a clear message if the database is not reachable, retrying briefly so
 // `docker compose up` works even when PostgreSQL is still warming up.

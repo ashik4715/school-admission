@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SchoolAdmission.Api.Domain;
 using SchoolAdmission.Api.Services;
 
@@ -37,7 +38,7 @@ public static class ApiEndpoints
         });
 
         // 4) POST /classes/{classId}/holds - apply (seat hold)
-        api.MapPost("/classes/{classId}/holds", async (string classId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
+        api.MapPost("/classes/{classId}/holds", async (string classId, [FromHeader(Name = "X-Student-Id")] string? xStudentId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
         {
             var studentId = StudentIdValidator.Require(request);
             var hold = await service.CreateHoldAsync(classId, studentId, ct);
@@ -53,7 +54,7 @@ public static class ApiEndpoints
         });
 
         // 6) POST /holds/{holdId}/confirm - pay the fee, confirm admission
-        api.MapPost("/holds/{holdId}/confirm", async (string holdId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
+        api.MapPost("/holds/{holdId}/confirm", async (string holdId, [FromHeader(Name = "X-Student-Id")] string? xStudentId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
         {
             var studentId = StudentIdValidator.Require(request);
             var hold = await service.ConfirmHoldAsync(holdId, studentId, ct);
@@ -61,7 +62,7 @@ public static class ApiEndpoints
         });
 
         // 7) DELETE /holds/{holdId} - cancel the application
-        api.MapDelete("/holds/{holdId}", async (string holdId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
+        api.MapDelete("/holds/{holdId}", async (string holdId, [FromHeader(Name = "X-Student-Id")] string? xStudentId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
         {
             var studentId = StudentIdValidator.Require(request);
             await service.CancelHoldAsync(holdId, studentId, ct);
@@ -69,7 +70,7 @@ public static class ApiEndpoints
         });
 
         // 8) GET /me/holds - every application of this student
-        api.MapGet("/me/holds", async (HttpRequest request, AdmissionService service, CancellationToken ct) =>
+        api.MapGet("/me/holds", async ([FromHeader(Name = "X-Student-Id")] string? xStudentId, HttpRequest request, AdmissionService service, CancellationToken ct) =>
         {
             var studentId = StudentIdValidator.Require(request);
             var holds = await service.GetHoldsForStudentAsync(studentId, ct);
