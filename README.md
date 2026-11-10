@@ -158,6 +158,7 @@ even between sweeps an expired hold no longer occupies a seat.
 ```
 .
 ├── docker-compose.yml          # PostgreSQL + backend + frontend
+├── run-local.sh / .ps1         # run all three locally, without Docker
 ├── ASSUMPTIONS.md              # what the brief left open and what I decided
 ├── AI_USAGE.md                 # which AI help was used, and what it got wrong
 ├── backend/
@@ -180,10 +181,41 @@ even between sweeps an expired hold no longer occupies a seat.
         └── hooks/                     # polling + server clock
 ```
 
-## 6. Development without Docker (optional)
+## 6. Run without Docker (local development)
+
+The assignment is graded through Docker, but you can also run the three processes directly on a
+machine that already has **.NET 8 SDK + Node 18+ + PostgreSQL 16+** installed:
 
 ```bash
-# backend (needs the PostgreSQL from `docker compose up -d db`)
+./run-local.sh              # Linux / macOS
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-local.ps1     # Windows
+```
+
+The script is idempotent and does everything: starts PostgreSQL if needed, creates the `school`
+role and `school_admission` database, restores NuGet packages, installs frontend dependencies,
+starts the API on `http://localhost:8080` and the UI on `http://localhost:5173`, waits until both
+are healthy and then mirrors their logs. `Ctrl+C` (or `./run-local.sh --stop`) stops them again.
+
+Ports, database credentials and the hold window can be overridden without editing the script:
+
+```bash
+DB_USER=me DB_PASSWORD=secret BACKEND_PORT=8090 FRONTEND_PORT=4000 HOLD_DURATION_SECONDS=120 ./run-local.sh
+```
+
+Logs and PID files land in `.run/` (git-ignored).
+
+**Docker vs. no Docker:** `docker-compose.yml` stays the supported, graded way to run this — it
+needs nothing installed on the host, and that is what the brief asks for. `run-local.sh` /
+`run-local.ps1` are a convenience for development (faster restart, debugger attach, `--skip-install`
+runs). Nothing in the application code depends on Docker.
+
+### Manual start (if you prefer doing it by hand)
+
+```bash
+# backend (needs the PostgreSQL from `docker compose up -d db`, or a local one)
 cd backend
 ConnectionStrings__Default="Host=localhost;Port=5432;Database=school_admission;Username=school;Password=school" \
   dotnet run --project src/SchoolAdmission.Api
@@ -192,3 +224,4 @@ ConnectionStrings__Default="Host=localhost;Port=5432;Database=school_admission;U
 cd frontend
 npm install && npm run dev        # http://localhost:5173
 ```
+
