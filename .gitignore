@@ -27,3 +27,14 @@ coverage/
 
 # local run artifacts (run-local.sh / run-local.ps1)
 .run/
+
+# Confidential hand-off pack (kept outside the public repo; see 00-START-HERE.md)
+00-START-HERE.md
+01-SPEC-reconstructed.md
+02-ASSUMPTIONS.md
+03-REQUIREMENT-MAP.md
+04-README.md
+Asst_Software_Engineer_Project_Assignment.pdf
+
+# graphify build artifacts (regenerate with /graphify)
+graphify-out/
